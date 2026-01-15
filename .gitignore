@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+venv/
+
+# PyCharm project files
+.idea/
+
+# Byte-compiled / cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+desktop.ini
+
+# Build / distribution
+dist/
+build/
+*.manifest
+*.spec
