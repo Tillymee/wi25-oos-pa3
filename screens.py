@@ -128,8 +128,8 @@ class Screens:
     # Gamespeed ändern
     def _change_speed(self, game, direction):
         game.speed_index = (game.speed_index + direction) % len(game.speed_keys)
-        game.move_every_n_frames = game.speed_modes[game.speed_keys[game.speed_index]]
-        game.frame_counter = 0
+        game.steps_per_second = game.speed_modes[game.speed_keys[game.speed_index]]
+        game.move_accumulator_ms = 0.0
 
     # Lives ändern
     def _change_lives(self, game, direction):

@@ -26,7 +26,7 @@ screens = Screens()
 # 4. Action (ALTER: Ask for events, Listen & handle input, Think / update, Execute logic, Render)
 def main():
     while True:
-        CLOCK.tick(FPS)
+        dt_ms = CLOCK.tick(FPS) # vergangene Zeit seit letztem Frame (Millisekunden)
         events = pygame.event.get()
 
         for event in events:
@@ -41,7 +41,7 @@ def main():
 
         elif game.state in (GameState.COUNTDOWN, GameState.RUNNING, GameState.PAUSED):
             game.handle_input(events)
-            game.update()
+            game.update(dt_ms)
             game.render(DISPLAY)
 
         elif game.state == GameState.GAME_OVER:

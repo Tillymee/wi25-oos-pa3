@@ -55,17 +55,18 @@ class Game:
         self.state = GameState.MENU
         self.two_player = False
 
-        # Geschwindigkeit: alle N Frames bewegen
+        # Geschwindigkeit: Schritte pro Sekunde (zeitbasiert)
         self.speed_modes = {
-            "SLOW": 12,
-            "MID": 8,
-            "FAST": 5
+            "SLOW": 4.0,
+            "MID": 8.0,
+            "FAST": 12.0
         }
         self.speed_keys = list(self.speed_modes.keys())
         self.speed_index = 1
-        self.move_every_n_frames = self.speed_modes[self.speed_keys[self.speed_index]]
+        self.steps_per_second = self.speed_modes[self.speed_keys[self.speed_index]]
 
-        self.frame_counter = 0
+        # sammelt Zeit, bis ein "Step" ausgeführt wird
+        self.move_accumulator_ms = 0.0
 
         # lives
         self.number_of_lives_modes = {"THREE": 3, "FIVE": 5, "SEVEN": 7, "TEN": 10}
@@ -133,7 +134,7 @@ class Game:
 
         self.total_eats_counter = 0
         self._refresh_both_foods()
-        self.frame_counter = 0
+        self.move_accumulator_ms = 0.0
 
         if start_in_countdown:
             self.start_countdown()
@@ -243,7 +244,7 @@ class Game:
                     self.snake2.change_direction((1, 0))
 
     # Update Methode
-    def update(self):
+    def update(self, dt_ms):
         if self.state in (GameState.MENU, GameState.GAME_OVER, GameState.PAUSED):
             return
 
@@ -252,23 +253,30 @@ class Game:
                 self.state = GameState.RUNNING
             return
 
-        # Frame zählen
-        self.frame_counter += 1
+        # Zeit sammeln
+        self.move_accumulator_ms += dt_ms
 
-        # Nur alle N Frames bewegen
-        if self.frame_counter % self.move_every_n_frames != 0:
-            return
+        # wie viele ms pro Step? (z.B. 5 steps/s -> 200ms pro Step -> alle 200ms darf Snake 1 Feld weitergehen)
+        step_ms = 1000.0 / self.steps_per_second
 
-        # Snakes bewegen
-        self.snake1.move()
-        if self.snake2 is not None:
-            self.snake2.move()
+        # solange genug Zeit "angespart" ist: einen oder mehrere Steps ausführen
+        while self.move_accumulator_ms >= step_ms:
+            self.move_accumulator_ms -= step_ms # hier wird ein move aus dem Zeit-Konto "bezahlt"
 
-        self.check_food_collision(self.snake1)
-        if self.snake2 is not None:
-            self.check_food_collision(self.snake2)
+            # Snakes bewegen
+            self.snake1.move()
+            if self.snake2 is not None:
+                self.snake2.move()
 
-        self.resolve_all_collisions()
+            self.check_food_collision(self.snake1)
+            if self.snake2 is not None:
+                self.check_food_collision(self.snake2)
+
+            self.resolve_all_collisions()
+
+            # falls game over o.Ä. passiert ist: abbrechen
+            if self.state != GameState.RUNNING:
+                break
 
     # rendern
     def render(self, surface):
