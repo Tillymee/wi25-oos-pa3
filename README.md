@@ -1,8 +1,18 @@
 # Snake Game (PyGame)
 
-Dieses Projekt ist ein Snake-Spiel, umgesetzt mit Python und PyGame.  
-Es unterstützt sowohl einen Einzelspieler-Modus als auch einen Zwei-Spieler-Modus und bringt ein eigenes Menü, ein
-In-Game-UI sowie einen Game-Over-Screen mit.
+Dieses Projekt ist ein Snake-Spiel, umgesetzt mit Python und PyGame.
+
+---
+
+## Inhaltsverzeichnis
+
+- [Projektüberblick](#projektüberblick)
+- [Features](#features)
+- [Technische Umsetzung](#technische-umsetzung)
+- [Installation](#installation)
+- [Steuerung](#steuerung)
+- [Spielregeln](#spielregeln)
+- [Assets](#assets)
 
 ---
 
@@ -35,6 +45,68 @@ bieten.
 
 ---
 
+## Technische Umsetzung
+
+### Game Loop & States
+
+Das Spiel läuft in einer Endlosschleife (`main.py`).  
+Der Ablauf wird über `GameState` gesteuert:
+
+`MENU → COUNTDOWN → RUNNING → PAUSED → GAME_OVER`
+
+Pro Frame werden:
+
+1. Events gelesen
+2. Eingaben verarbeitet
+3. Spiellogik aktualisiert
+4. Szene gerendert
+
+---
+
+### Zeitbasierte Bewegung (Speed)
+
+Die Snake bewegt sich **zeitbasiert**, nicht framebasiert.
+
+- `CLOCK.tick(FPS)` liefert `dt_ms` (vergangene Zeit seit dem letzten Frame)
+- In `game.update(dt_ms)` wird diese Zeit gesammelt
+- Sobald genug Zeit vergangen ist (`1000 / steps_per_second`), bewegt sich die Snake **ein Grid-Feld**
+
+**Vorteil:**  
+Die Geschwindigkeit bleibt stabil, unabhängig von FPS oder Hardware.
+
+---
+
+### Snake-Logik (`snake.py`)
+
+- Die Snake besteht aus einer Liste von Grid-Positionen
+- Bewegung erfolgt durch Hinzufügen eines neuen Kopfes
+- Ob die Snake wächst oder schrumpft, entscheidet sich im nächsten Move
+- Die Snake kennt **keine Zeitlogik**, sie bewegt sich nur, wenn das Game einen Schritt auslöst
+
+---
+
+### Food-Logik (`food.py`)
+
+- Food kann **gut** oder **schlecht** sein
+- Bilder werden dynamisch aus Ordnern geladen
+- Beim Spawnen werden belegte Felder vermieden (Snake-Körper, anderes Food)
+- Food kennt nur Typ und Position, die Spielregeln liegen in `game.py`
+
+---
+
+### Kollisionen & Leben
+
+Geprüft werden:
+
+- Wandkollisionen
+- Selbstkollisionen
+- Snake-zu-Snake-Kollisionen
+
+Bei einer Kollision verliert die betroffene Snake ein Leben.  
+Sobald ein Spieler keine Leben mehr hat → `GAME_OVER`.
+
+---
+
 ## Installation
 
 Voraussetzungen:
@@ -52,9 +124,9 @@ Setup (virtuelle Umgebung):
 
     pip install -r requirements.txt
 
----
 
-## Spiel starten
+
+### Spiel starten
 
     python main.py
 
@@ -68,7 +140,6 @@ Setup (virtuelle Umgebung):
 - TAB: Fokus wechseln
 - ENTER: Spiel starten (nur wenn Spielername(n) gesetzt)
 - BACKSPACE: Zeichen im Namen löschen
-- Maus: Menü bedienen
 - Q: Spiel beenden
 
 ### Im Spiel:
