@@ -1,6 +1,9 @@
 # IDEA PRINZIP
 # 1. Import and Initialize
 import sys
+
+import pygame
+
 from config import *
 from game import Game, GameState
 from screens import Screens
@@ -23,12 +26,19 @@ game = Game()
 screens = Screens()
 
 
-# 4. Action (ALTER: Ask for events, Listen & handle input, Think / update, Execute logic, Render)
+# 4. Action (ALTER)
+# Assign key variables (Laufvar., boolsche Werte)
+# loop (Spielschleife)
+# Timing (FPS-->Spielgeschwindigkeit)
+# Event (Reagieren auf Events)
+# Redisplay (Update, Render)
 def main():
+    # A, L
     while True:
+    # T
         dt_ms = CLOCK.tick(FPS) # vergangene Zeit seit letztem Frame (Millisekunden)
         events = pygame.event.get()
-
+    # E
         for event in events:
             # Quit-Event
             if event.type == pygame.QUIT:
@@ -47,7 +57,7 @@ def main():
         elif game.state == GameState.GAME_OVER:
             screens.handle_game_over_input(events, game)
             screens.render_game_over(DISPLAY, game)
-
+    # R
         pygame.display.update()
 
 
