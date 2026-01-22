@@ -59,6 +59,7 @@ class Screens:
 
     # Logo auf Höhe skalieren und speichern
     def _load_and_scale_logo(self, path):
+        # convert_alpha() optimiert das Bild für schnelles Rendering mit Transparenz
         img = pygame.image.load(path).convert_alpha()
         self.logo = pygame.transform.scale(img, (260, 220))
 
@@ -127,9 +128,9 @@ class Screens:
 
     # Gamespeed ändern
     def _change_speed(self, game, direction):
-        game.speed_index = (game.speed_index + direction) % len(game.speed_keys)
-        game.steps_per_second = game.speed_modes[game.speed_keys[game.speed_index]]
-        game.move_accumulator_ms = 0.0
+        game.speed_index = (game.speed_index + direction) % len(game.speed_keys) # zyklisch
+        game.steps_per_second = game.speed_modes[game.speed_keys[game.speed_index]] # holt aktuellen Speed-Namen -> benutzt ihn als Key im Dictionary um Zahl zu finden
+        game.move_accumulator_ms = 0.0 # bei Ändern der Geschwindigkeit Resttempo löschen
 
     # Lives ändern
     def _change_lives(self, game, direction):
@@ -152,7 +153,7 @@ class Screens:
     def handle_menu_input(self, events, game):
         for event in events:
             # Mausklick-Events
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1: # Linksklick
                 # Mausklick-Position speichern
                 mx, my = event.pos
                 for key, rect in self.click_areas.items():
@@ -213,9 +214,11 @@ class Screens:
 
                 continue
 
+            # Ab hier Tastendrücke
             if event.type != pygame.KEYDOWN:
                 continue
 
+            # Q: Quit
             if event.key == pygame.K_q:
                 pygame.quit()
                 return
@@ -332,8 +335,10 @@ class Screens:
 
             self.click_areas[box_key] = row
 
+        # Menü wird von oben nach unten, Zeile für Zeile aufgebaut
         # y-Wert der ersten Zeile im Menü
         y = panel.top + self.panel_padding_top + self.row_height // 2
+
         # Slider für Mode (Single, Two Players)
         mode_value = "SOLO" if not game.two_player else "TWO PLAYERS"
         draw_slider(y, "MODE", mode_value, 0, "mode")
@@ -346,8 +351,8 @@ class Screens:
         y += self.row_height + self.row_gap
         if game.two_player and game.snake2 is not None:
             draw_name(y, "PLAYER 2", game.snake2.name, 2, "p2_box")
-
             y += self.row_height + self.row_gap
+
         # Speed Slider
         draw_slider(y, "SPEED", game.speed_keys[game.speed_index], 3, "speed")
 
@@ -517,7 +522,7 @@ class Screens:
         self._panel_row(surface, row1, highlighted=True)
         self._panel_row(surface, row2, highlighted=False)
 
-        # Zeile GEwinner
+        # Zeile Gewinner
         x_icon = row1.left + 24
         surface.blit(self.img_medal_1st, self.img_medal_1st.get_rect(center=(x_icon, row1.centery)))
         t1 = self.font_small.render(f"{winner.name}: {winner.score}", True, self.col_text)
